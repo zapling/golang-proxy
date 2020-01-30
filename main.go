@@ -63,6 +63,13 @@ func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
 
 	_, target := getParams(os.Args)
 	url, _ := url.Parse(target)
+
+	// https redirects
+	req.URL.Host = url.Host
+	req.URL.Scheme = url.Scheme
+	req.Header.Set("X-Forwarded-Host", req.Header.Get("host"))
+	req.Host = url.Host
+
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.ServeHTTP(res, req)
 }
