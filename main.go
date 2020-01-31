@@ -27,6 +27,11 @@ func getParams(args []string) (string, string) {
 	var port string
 	var target string
 
+	if len(args) < 2 {
+		printUsage()
+		os.Exit(0)
+	}
+
 	for i := 1; i < len(args); i++ {
 		switch i {
 		case 1:
@@ -77,8 +82,8 @@ func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
 func main() {
 	port, target := getParams(os.Args)
 
-	fmt.Println("Server http server...")
-	fmt.Printf("http://localhost:%v --> %v\n", port, target)
+	fmt.Println("Serving reverse proxy server...")
+	fmt.Printf("http://localhost:%v -> %v\n", port, target)
 
 	http.HandleFunc("/", handleRequestAndRedirect)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
