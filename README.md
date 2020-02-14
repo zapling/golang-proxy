@@ -2,6 +2,8 @@
 
 Just a simple reverse proxy written in Go in order to get familiar with the Go syntax.
 
+![Image of golang-proxy app](screenshot.png)
+
 ## Build
 
 Compiling is really simple and will output one binary called `golang-proxy` into the `build/` folder.
