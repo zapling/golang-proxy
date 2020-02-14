@@ -7,9 +7,11 @@ import (
 	"github.com/zapling/golang-proxy/proxy"
 )
 
+var version = "1.0.2"
+
 func usage() {
 	fmt.Println(
-		"golang-proxy [PORT] [TARGET]\n" +
+		"golang-proxy [PORT] [TARGET]\nVersion " + version + "\nhttps://github.com/zapling/golang-proxy/\n\n" +
 			"Example: golang-proxy 5000 http://localhost:80\n\n" +
 			"PORT:   The port that the proxy should run on.\n" +
 			"TARGET: The target address that the proxy should redirect requests to.",
@@ -21,7 +23,7 @@ func getArgs() (string, string) {
 
 	args := os.Args
 
-	if len(args) < 2 {
+	if len(args) < 3 {
 		usage()
 		os.Exit(0)
 	}
