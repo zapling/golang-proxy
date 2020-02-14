@@ -19,7 +19,7 @@ golang-proxy [PORT] [TARGET]
 Example: golang-proxy 5000 http://localhost:80
 ```
 
-## License
+## License ([MIT](https://en.wikipedia.org/wiki/MIT_License))
 
 ```
 Copyright (c) 2020 Andreas Palm
