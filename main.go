@@ -2,91 +2,43 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"os"
+
+	"github.com/zapling/golang-proxy/proxy"
 )
 
-func printUsage() {
-	text := "golang-proxy [PORT] [TARGET]\n" +
-		"Example: golang-proxy 5000 http://localhost:80\n\n" +
-		"PORT:   The port that the proxy should run on.\n" +
-		"TARGET: The target address that the proxy should redirect requests to."
-
-	fmt.Println(text)
+func usage() {
+	fmt.Println(
+		"golang-proxy [PORT] [TARGET]\n" +
+			"Example: golang-proxy 5000 http://localhost:80\n\n" +
+			"PORT:   The port that the proxy should run on.\n" +
+			"TARGET: The target address that the proxy should redirect requests to.",
+	)
 }
 
-func exitError(message string) {
-	printUsage()
-	fmt.Printf("\n---\nError: %v\n", message)
-	os.Exit(1)
-}
+func getArgs() (string, string) {
+	var port, target string
 
-func getParams(args []string) (string, string) {
-	var port string
-	var target string
+	args := os.Args
 
 	if len(args) < 2 {
-		printUsage()
+		usage()
 		os.Exit(0)
 	}
 
-	for i := 1; i < len(args); i++ {
-		switch i {
-		case 1:
-			port = args[i]
-		case 2:
-			target = args[i]
-		}
-	}
+	port = args[1]
+	target = args[2]
 
-	if port == "" {
-		exitError("PORT most be specified")
-	}
-
-	if target == "" {
-		exitError("TARGET mot be specified")
+	if port == "" || target == "" {
+		fmt.Println("Insufficient arguments")
+		os.Exit(1)
 	}
 
 	return port, target
 }
 
-func printRequestInfo(req *http.Request) {
-	fmt.Printf(
-		"[%v] {%v} %v %v %v\n",
-		req.Method,
-		req.RemoteAddr,
-		req.URL,
-		req.Header["Content-Type"],
-		req.ContentLength,
-	)
-}
-
-func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
-	printRequestInfo(req)
-
-	_, target := getParams(os.Args)
-	url, _ := url.Parse(target)
-
-	// https redirects
-	req.URL.Host = url.Host
-	req.URL.Scheme = url.Scheme
-	req.Header.Set("X-Forwarded-Host", req.Header.Get("host"))
-	req.Host = url.Host
-
-	proxy := httputil.NewSingleHostReverseProxy(url)
-	proxy.ServeHTTP(res, req)
-}
-
 func main() {
-	port, target := getParams(os.Args)
-
-	fmt.Println("Serving reverse proxy server...")
-	fmt.Printf("http://localhost:%v -> %v\n", port, target)
-
-	http.HandleFunc("/", handleRequestAndRedirect)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		panic(err)
-	}
+	port, target := getArgs()
+	p := proxy.ReverseProxy{Port: port, Target: target}
+	p.Serve()
 }
