@@ -2,6 +2,8 @@ package proxy
 
 import (
 	"fmt"
+    "time"
+    "strings"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -31,13 +33,19 @@ func (p *ReverseProxy) setup() {
 }
 
 func (p *ReverseProxy) logRequest(req *http.Request) {
+    localhost_addr := "[::1]"
+    remote_addr := req.RemoteAddr
+
+    if strings.Contains(remote_addr, localhost_addr) {
+        remote_addr = "127.0.0.1:" + remote_addr[6:]
+    }
+
 	fmt.Printf(
-		"[%v] {%v} %v %v %v\n",
-		req.Method,
-		req.RemoteAddr,
-		req.URL,
-		req.Header["Content-Type"],
-		req.ContentLength,
+        "%v - [%v] %v [L:%v]\n",
+        time.Now().Format(time.RFC3339),
+        req.Method,
+		remote_addr,
+        req.ContentLength,
 	)
 }
 
